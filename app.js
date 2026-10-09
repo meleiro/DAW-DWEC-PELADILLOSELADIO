@@ -1934,6 +1934,1932 @@ function leerFormulario() {
         console.log(reserva.edad);
 
     Pero podemos añadir esa parte cuando avancemos con el formulario.
+    */    /*
+    ===========================================================================
+    4. OBTENER LOS EXTRAS SELECCIONADOS
+    ===========================================================================
+
+    En el formulario tenemos varios checkbox que permiten seleccionar
+    servicios adicionales.
+
+    Por ejemplo:
+
+        <input
+            type="checkbox"
+            name="extras"
+            value="lavado"
+        >
+
+        <input
+            type="checkbox"
+            name="extras"
+            value="cejas"
+        >
+
+
+    IMPORTANTE:
+
+    Ambos checkbox tienen el mismo atributo:
+
+        name="extras"
+
+    Esto es perfectamente válido.
+
+    De hecho, nos permite agrupar varios controles bajo un mismo nombre.
+
+
+    ¿QUÉ OCURRE SI EL USUARIO MARCA LOS DOS?
+
+    El formulario contiene dos valores asociados a "extras":
+
+        lavado
+        cejas
+
+
+    ---------------------------------------------------------------------------
+    getAll()
+    ---------------------------------------------------------------------------
+
+    getAll() es un método del objeto FormData.
+
+    Su función es obtener TODOS los valores asociados a un nombre de campo.
+
+    Sintaxis:
+
+        datos.getAll('nombreDelCampo')
+
+
+    En nuestro caso:
+
+        datos.getAll('extras')
+
+
+    Si el usuario ha seleccionado los dos extras, devuelve un array:
+
+        ['lavado', 'cejas']
+
+
+    Si solamente selecciona el lavado:
+
+        ['lavado']
+
+
+    Si no selecciona ningún extra:
+
+        []
+
+
+    DIFERENCIA ENTRE get() Y getAll()
+
+    get():
+
+        datos.get('extras')
+
+    devuelve solamente el PRIMER valor asociado al nombre.
+
+    getAll():
+
+        datos.getAll('extras')
+
+    devuelve TODOS los valores en un array.
+
+
+    ---------------------------------------------------------------------------
+    map()
+    ---------------------------------------------------------------------------
+
+    map() es un método incorporado de los arrays de JavaScript.
+
+    Sirve para recorrer los elementos de un array y crear un NUEVO array
+    con los resultados de aplicar una función a cada elemento.
+
+    Su estructura habitual es:
+
+        array.map(funcion)
+
+
+    Por ejemplo:
+
+        const numeros = [1, 2, 3];
+
+        const dobles = numeros.map(numero => numero * 2);
+
+    Resultado:
+
+        [2, 4, 6]
+
+
+    IMPORTANTE:
+
+    map() NO modifica el array original.
+
+    Devuelve un array nuevo.
+
+
+    ---------------------------------------------------------------------------
+    .map(String)
+    ---------------------------------------------------------------------------
+
+    String() es una función incorporada de JavaScript que permite
+    convertir un valor a texto.
+
+    Por ejemplo:
+
+        String(25)
+
+    devuelve:
+
+        '25'
+
+
+    Cuando escribimos:
+
+        .map(String)
+
+    estamos pasando la función String como argumento de map().
+
+    JavaScript aplicará String a cada elemento del array.
+
+    Por ejemplo:
+
+        [10, 20, 30].map(String)
+
+    devuelve:
+
+        ['10', '20', '30']
+
+
+    OBSERVACIÓN:
+
+    Los valores habituales de los checkbox ya son strings.
+
+    Por tanto, en este formulario .map(String) no suele cambiar
+    sus valores, pero nos sirve para practicar map() y dejar
+    explícito que queremos trabajar con identificadores de texto.
+
+
+    ---------------------------------------------------------------------------
+    RESULTADO FINAL
+    ---------------------------------------------------------------------------
+
+    Si el usuario seleccionó lavado y cejas:
+
+        extras = ['lavado', 'cejas']
+
+    Si no seleccionó ninguno:
+
+        extras = []
+
+    Este array nos servirá posteriormente para recorrer los extras
+    y sumar sus precios al importe de la reserva.
     */
+
+    const extras = datos
+        .getAll('extras')
+        .map(String);
+
+
+    /*
+    ===========================================================================
+    5. OBTENER Y NORMALIZAR EL CÓDIGO DE DESCUENTO
+    ===========================================================================
+
+    En el formulario tenemos un campo donde el usuario puede introducir
+    un código de descuento.
+
+    Por ejemplo:
+
+        <input
+            name="coupon"
+            placeholder="ELADIO10"
+        >
+
+
+    El usuario podría escribir:
+
+        ELADIO10
+
+    Pero también:
+
+        eladio10
+
+    O incluso:
+
+        "  eladio10  "
+
+
+    Queremos que todas esas variantes se transformen en:
+
+        'ELADIO10'
+
+
+    Para conseguirlo utilizamos varios métodos encadenados.
+
+
+    ---------------------------------------------------------------------------
+    PASO 1: datos.get('coupon')
+    ---------------------------------------------------------------------------
+
+    get() obtiene el valor asociado al campo cuyo atributo name sea:
+
+        coupon
+
+
+    Si el usuario escribe:
+
+        eladio10
+
+    obtenemos:
+
+        'eladio10'
+
+
+    Si no existe un campo con ese nombre, get() devuelve null.
+
+
+    ---------------------------------------------------------------------------
+    PASO 2: OPERADOR ??
+    ---------------------------------------------------------------------------
+
+    El operador ?? se llama operador de coalescencia nula.
+
+    Su sintaxis es:
+
+        valor ?? alternativa
+
+
+    Si valor es null o undefined, utiliza alternativa.
+
+    En nuestro caso:
+
+        datos.get('coupon') ?? ''
+
+
+    significa:
+
+        "Obtén el cupón y, si el resultado es null o undefined,
+         utiliza un string vacío".
+
+
+    ---------------------------------------------------------------------------
+    PASO 3: String()
+    ---------------------------------------------------------------------------
+
+    String() convierte el resultado a texto.
+
+    Esto nos permite aplicar posteriormente métodos de strings.
+
+
+    ---------------------------------------------------------------------------
+    PASO 4: trim()
+    ---------------------------------------------------------------------------
+
+    trim() es un método incorporado de los strings.
+
+    Elimina los espacios en blanco del principio y del final.
+
+    Ejemplo:
+
+        '  eladio10  '.trim()
+
+    devuelve:
+
+        'eladio10'
+
+
+    IMPORTANTE:
+
+    trim() no elimina los espacios interiores.
+
+    Ejemplo:
+
+        'eladio 10'.trim()
+
+    sigue devolviendo:
+
+        'eladio 10'
+
+
+    ---------------------------------------------------------------------------
+    PASO 5: toUpperCase()
+    ---------------------------------------------------------------------------
+
+    toUpperCase() es un método de los strings.
+
+    Devuelve un nuevo string con las letras convertidas a mayúsculas.
+
+    Ejemplo:
+
+        'eladio10'.toUpperCase()
+
+    devuelve:
+
+        'ELADIO10'
+
+
+    Los strings son inmutables.
+
+    Esto significa que trim() y toUpperCase() no modifican el string
+    original, sino que devuelven nuevos strings.
+
+
+    ---------------------------------------------------------------------------
+    RESULTADO FINAL
+    ---------------------------------------------------------------------------
+
+    Si el usuario escribe:
+
+        '  eladio10  '
+
+    después de todas las operaciones:
+
+        coupon = 'ELADIO10'
+
+
+    Esto nos permitirá comparar posteriormente:
+
+        coupon === CODIGO_CUPON
+
+    sin preocuparnos de que el usuario haya escrito letras minúsculas
+    o espacios al principio y al final.
+    */
+
+    const coupon = String(
+        datos.get('coupon') ?? ''
+    )
+        .trim()
+        .toUpperCase();
+
+
+    /*
+    ===========================================================================
+    6. OBTENER EL IDENTIFICADOR DEL SERVICIO
+    ===========================================================================
+
+    En el HTML tenemos un select donde el usuario elige un servicio.
+
+    Por ejemplo:
+
+        <select name="service">
+
+            <option value="">
+                Elige corte
+            </option>
+
+            <option value="clasico">
+                Corte clásico
+            </option>
+
+            <option value="Tupper fade">
+                Corte fade
+            </option>
+
+        </select>
+
+
+    IMPORTANTE:
+
+    El texto que ve el usuario NO tiene por qué coincidir con
+    el valor que recibe JavaScript.
+
+    Por ejemplo:
+
+        <option value="clasico">
+            Corte clásico
+        </option>
+
+
+    El usuario ve:
+
+        Corte clásico
+
+    Pero FormData obtiene:
+
+        'clasico'
+
+
+    ---------------------------------------------------------------------------
+    datos.get('service')
+    ---------------------------------------------------------------------------
+
+    Obtiene el value de la opción seleccionada.
+
+    Por ejemplo:
+
+        'clasico'
+
+
+    ---------------------------------------------------------------------------
+    ?? ''
+    ---------------------------------------------------------------------------
+
+    Si el campo no existe, utilizamos un string vacío.
+
+
+    ---------------------------------------------------------------------------
+    String()
+    ---------------------------------------------------------------------------
+
+    Convertimos el valor a string.
+
+
+    ---------------------------------------------------------------------------
+    ¿POR QUÉ GUARDAMOS EL ID Y NO EL PRECIO?
+    ---------------------------------------------------------------------------
+
+    Porque el precio ya está almacenado en nuestro array SERVICIOS.
+
+    Ejemplo:
+
+        {
+            id: 'clasico',
+            name: 'Corte clásico',
+            precio: 12,
+            duracion: 25
+        }
+
+
+    Posteriormente podremos utilizar:
+
+        buscarServicio(servicioId)
+
+    para recuperar el objeto completo.
+
+    Así evitamos duplicar los precios en el HTML y en JavaScript.
+
+
+    Si el usuario todavía no ha seleccionado ningún servicio:
+
+        servicioId = ''
+
+    */
+
+    const servicioId = String(
+        datos.get('service') ?? ''
+    );
+
+
+    /*
+    ===========================================================================
+    7. OBTENER EL DÍA SELECCIONADO
+    ===========================================================================
+
+    El procedimiento es similar al utilizado para obtener el servicio.
+
+
+    Supongamos que tenemos:
+
+        <select name="day">
+
+            <option value="">
+                Selecciona un día
+            </option>
+
+            <option value="Lunes">
+                Lunes
+            </option>
+
+            <option value="Martes">
+                Martes
+            </option>
+
+        </select>
+
+
+    Si el usuario selecciona lunes:
+
+        datos.get('day')
+
+    devuelve:
+
+        'Lunes'
+
+
+    Si todavía no ha seleccionado ningún día y la opción inicial
+    tiene value="", obtendremos:
+
+        ''
+
+
+    Más adelante podremos comprobar:
+
+        if (!reserva.dia)
+
+    para detectar que no se ha seleccionado un día.
+    */
+
+    const dia = String(
+        datos.get('day') ?? ''
+    );
+
+
+    /*
+    ===========================================================================
+    8. COMPROBAR SI EL CLIENTE ES MIEMBRO
+    ===========================================================================
+
+    En el formulario tenemos un checkbox similar a:
+
+        <input
+            type="checkbox"
+            name="member"
+        >
+
+
+    Un checkbox puede estar:
+
+        Marcado
+        No marcado
+
+
+    ---------------------------------------------------------------------------
+    ¿QUÉ DEVUELVE FormData?
+    ---------------------------------------------------------------------------
+
+    Si el checkbox está marcado y no hemos definido otro value:
+
+        datos.get('member')
+
+    devuelve:
+
+        'on'
+
+
+    Si el checkbox NO está marcado:
+
+        datos.get('member')
+
+    devuelve:
+
+        null
+
+
+    IMPORTANTE:
+
+    FormData no devuelve directamente true o false para este checkbox.
+
+
+    ---------------------------------------------------------------------------
+    OPERADOR ===
+    ---------------------------------------------------------------------------
+
+    === es el operador de igualdad estricta.
+
+    Compara tanto el valor como el tipo.
+
+
+    Ejemplo:
+
+        'on' === 'on'
+
+    devuelve:
+
+        true
+
+
+    Pero:
+
+        null === 'on'
+
+    devuelve:
+
+        false
+
+
+    ---------------------------------------------------------------------------
+    RESULTADO FINAL
+    ---------------------------------------------------------------------------
+
+    Si el usuario es miembro:
+
+        esMiembro = true
+
+
+    Si no es miembro:
+
+        esMiembro = false
+
+
+    De esta manera transformamos el valor del formulario
+    en un booleano que podremos utilizar directamente:
+
+        if (reserva.esMiembro) {
+            // Aplicar descuento
+        }
+    */
+
+    const esMiembro = datos.get('member') === 'on';
+
+
+    /*
+    ===========================================================================
+    9. DEVOLVER LOS DATOS DE LA RESERVA
+    ===========================================================================
+
+    Hasta ahora hemos obtenido y preparado diferentes valores:
+
+        nombre      -> string
+        edad        -> number
+        servicioId  -> string
+        dia         -> string
+        extras      -> array
+        coupon      -> string
+        esMiembro   -> boolean
+
+
+    Queremos devolverlos todos juntos.
+
+
+    ---------------------------------------------------------------------------
+    return
+    ---------------------------------------------------------------------------
+
+    return es una palabra reservada de JavaScript.
+
+    Sirve para devolver un resultado desde una función.
+
+    Cuando se ejecuta return:
+
+        1. La función termina.
+        2. Devuelve el valor indicado.
+        3. La ejecución continúa donde se había llamado a la función.
+
+
+    ---------------------------------------------------------------------------
+    OBJETO LITERAL
+    ---------------------------------------------------------------------------
+
+    Utilizamos llaves para crear un objeto:
+
+        {
+            propiedad: valor
+        }
+
+
+    En JavaScript existe una sintaxis abreviada para crear objetos
+    cuando la propiedad y la variable tienen el mismo nombre.
+
+    Por ejemplo:
+
+        return {
+            nombre: nombre,
+            edad: edad
+        };
+
+    puede escribirse:
+
+        return {
+            nombre,
+            edad
+        };
+
+
+    Ambas formas producen el mismo resultado.
+
+
+    ---------------------------------------------------------------------------
+    EJEMPLO DEL OBJETO DEVUELTO
+    ---------------------------------------------------------------------------
+
+    Supongamos que el usuario introduce:
+
+        Nombre: Antonio
+        Edad: 25
+        Servicio: Corte clásico
+        Día: Lunes
+        Extras: Lavado
+        Cupón: eladio10
+        Miembro: Sí
+
+
+    leerFormulario() podría devolver:
+
+        {
+            nombre: 'Antonio',
+            edad: 25,
+            servicioId: 'clasico',
+            dia: 'Lunes',
+            extras: ['lavado'],
+            coupon: 'ELADIO10',
+            esMiembro: true
+        }
+
+
+    Posteriormente podremos hacer:
+
+        const reserva = leerFormulario();
+
+        console.log(reserva.nombre);
+
+    Resultado:
+
+        'Antonio'
+
+
+    También:
+
+        console.log(reserva.extras);
+
+    Resultado:
+
+        ['lavado']
+
+
+    IMPORTANTE:
+
+    Esta función solamente LEE y PREPARA los datos.
+
+    Todavía no comprueba si son válidos ni calcula el precio.
+
+    Esas responsabilidades corresponderán a otras funciones.
+    */
+
+    return {
+        nombre,
+        edad,
+        servicioId,
+        dia,
+        extras,
+        coupon,
+        esMiembro
+    };
+
+}
+
+/*
+===============================================================================
+FUNCIÓN: validarReserva()
+===============================================================================
+
+OBJETIVO:
+
+Comprobar si los datos de una reserva cumplen las condiciones
+establecidas por nuestra aplicación.
+
+
+RECIBE:
+
+    reserva
+
+Es un objeto que normalmente habremos obtenido mediante:
+
+    const reserva = leerFormulario();
+
+
+Por ejemplo:
+
+    {
+        nombre: 'Antonio',
+        edad: 25,
+        servicioId: 'clasico',
+        dia: 'Lunes',
+        extras: ['lavado'],
+        coupon: 'ELADIO10',
+        esMiembro: true
+    }
+
+
+DEVUELVE:
+
+Un ARRAY de mensajes de error.
+
+
+Si todo es correcto:
+
+    []
+
+
+Si hay errores:
+
+    [
+        'Escribe tu nombre',
+        'Selecciona un día'
+    ]
+
+
+¿POR QUÉ DEVOLVEMOS UN ARRAY?
+
+Porque una reserva puede contener varios errores al mismo tiempo.
+
+Por ejemplo:
+
+    El usuario no escribe su nombre.
+
+    Además, no selecciona un servicio.
+
+    Además, no selecciona un día.
+
+
+Queremos detectar todos esos errores y devolverlos juntos,
+en lugar de detenernos en el primero.
+===============================================================================
+*/
+
+function validarReserva(reserva) {
+
+    /*
+    ===========================================================================
+    1. CREAR UN ARRAY PARA ALMACENAR LOS ERRORES
+    ===========================================================================
+
+    [] es un array vacío.
+
+    Al principio suponemos que no hay errores.
+
+    A medida que realicemos comprobaciones, iremos añadiendo
+    mensajes al array cuando encontremos problemas.
+
+
+    Ejemplo:
+
+        const errores = [];
+
+    Inicialmente:
+
+        errores.length === 0
+
+    */
+
+    const errores = [];
+
+
+    /*
+    ===========================================================================
+    2. COMPROBAR EL NOMBRE
+    ===========================================================================
+
+    Queremos impedir que se confirme una reserva sin nombre.
+
+
+    ---------------------------------------------------------------------------
+    if
+    ---------------------------------------------------------------------------
+
+    if es una estructura condicional.
+
+    Ejecuta un bloque de código cuando una expresión
+    produce un resultado verdadero.
+
+
+    ---------------------------------------------------------------------------
+    OPERADOR !
+    ---------------------------------------------------------------------------
+
+    ! es el operador de negación lógica.
+
+    Invierte el valor booleano de una expresión.
+
+
+    Por ejemplo:
+
+        !true
+
+    devuelve:
+
+        false
+
+
+    Y:
+
+        !false
+
+    devuelve:
+
+        true
+
+
+    ---------------------------------------------------------------------------
+    STRINGS VACÍOS Y VALORES FALSY
+    ---------------------------------------------------------------------------
+
+    En JavaScript, un string vacío:
+
+        ''
+
+    es un valor falsy.
+
+    Eso significa que, al evaluarlo como condición,
+    se considera falso.
+
+
+    Por tanto:
+
+        !''
+
+    devuelve:
+
+        true
+
+
+    Como en leerFormulario() hemos utilizado trim(),
+    un nombre compuesto únicamente por espacios también
+    se convierte en un string vacío.
+
+
+    ---------------------------------------------------------------------------
+    EJEMPLO
+    ---------------------------------------------------------------------------
+
+    Si:
+
+        reserva.nombre = ''
+
+    entonces:
+
+        !reserva.nombre
+
+    es true y entramos en el if.
+
+
+    ---------------------------------------------------------------------------
+    push()
+    ---------------------------------------------------------------------------
+
+    push() es un método de los arrays.
+
+    Añade uno o varios elementos al FINAL del array.
+
+    Modifica el array original.
+
+    Devuelve su nueva longitud.
+
+
+    Ejemplo:
+
+        const mensajes = [];
+
+        mensajes.push('Error 1');
+
+    Ahora mensajes contiene:
+
+        ['Error 1']
+
+
+    Si hacemos:
+
+        mensajes.push('Error 2');
+
+    obtenemos:
+
+        ['Error 1', 'Error 2']
+
+
+    En nuestro caso, utilizamos push() para guardar
+    cada mensaje de error.
+    */
+
+    if (!reserva.nombre) {
+
+        errores.push('Escribe tu nombre');
+
+    }
+
+
+    /*
+    ===========================================================================
+    3. COMPROBAR LA EDAD
+    ===========================================================================
+
+    La edad debe cumplir dos condiciones:
+
+        1. Ser un número válido.
+
+        2. Estar dentro del intervalo permitido.
+
+
+    ---------------------------------------------------------------------------
+    Number.isNaN()
+    ---------------------------------------------------------------------------
+
+    Number.isNaN() es un método incorporado de JavaScript.
+
+    Comprueba si un valor es exactamente NaN.
+
+
+    NaN significa:
+
+        Not a Number
+
+
+    Por ejemplo:
+
+        Number('Eladio')
+
+    devuelve:
+
+        NaN
+
+
+    Para comprobarlo:
+
+        Number.isNaN(NaN)
+
+    devuelve:
+
+        true
+
+
+    Mientras que:
+
+        Number.isNaN(25)
+
+    devuelve:
+
+        false
+
+
+    IMPORTANTE:
+
+    No debemos comprobar NaN utilizando:
+
+        valor === NaN
+
+    porque NaN no es igual a sí mismo.
+
+
+    ---------------------------------------------------------------------------
+    else if
+    ---------------------------------------------------------------------------
+
+    else if permite comprobar otra condición cuando
+    la condición del if anterior no se ha cumplido.
+
+
+    En nuestro caso:
+
+        Si la edad es NaN:
+            mostramos un error.
+
+        En caso contrario:
+            comprobamos si está dentro del intervalo permitido.
+
+
+    ---------------------------------------------------------------------------
+    OPERADOR ||
+    ---------------------------------------------------------------------------
+
+    || es el operador OR lógico.
+
+    La condición será verdadera si al menos una
+    de las expresiones resulta verdadera.
+
+
+    ---------------------------------------------------------------------------
+    TIENDA.edadMinima
+    ---------------------------------------------------------------------------
+
+    Accedemos a una propiedad del objeto TIENDA.
+
+    En nuestro proyecto:
+
+        TIENDA.edadMinima
+
+    contiene:
+
+        16
+
+
+    Por tanto, comprobamos si la edad es inferior a 16
+    o superior a 120.
+
+
+    ---------------------------------------------------------------------------
+    TEMPLATE LITERAL
+    ---------------------------------------------------------------------------
+
+    Utilizamos comillas invertidas para introducir el valor
+    de TIENDA.edadMinima dentro del mensaje.
+
+    Ejemplo:
+
+        `La edad debe estar entre ${TIENDA.edadMinima} y 120`
+
+    produce:
+
+        'La edad debe estar entre 16 y 120'
+    */
+
+    if (Number.isNaN(reserva.edad)) {
+
+        errores.push('La edad debe de ser un número');
+
+    } else if (
+        reserva.edad < TIENDA.edadMinima ||
+        reserva.edad > 120
+    ) {
+
+        errores.push(
+            `La edad debe de estar entre ${TIENDA.edadMinima} y 120`
+        );
+
+    }
+
+
+    /*
+    ===========================================================================
+    4. COMPROBAR QUE EL SERVICIO EXISTE
+    ===========================================================================
+
+    En leerFormulario() guardamos:
+
+        servicioId
+
+
+    Ejemplo:
+
+        reserva.servicioId = 'clasico'
+
+
+    Queremos comprobar que ese identificador corresponde
+    a un servicio que realmente exista en el array SERVICIOS.
+
+
+    ---------------------------------------------------------------------------
+    buscarServicio()
+    ---------------------------------------------------------------------------
+
+    Es una función que hemos creado anteriormente.
+
+    Utiliza find() para buscar un servicio por su identificador.
+
+
+    Ejemplo:
+
+        buscarServicio('clasico')
+
+    devuelve un objeto similar a:
+
+        {
+            id: 'clasico',
+            name: 'Corte clásico',
+            precio: 12,
+            duracion: 25
+        }
+
+
+    Si no encuentra ningún servicio:
+
+        buscarServicio('inexistente')
+
+    devuelve:
+
+        undefined
+
+
+    ---------------------------------------------------------------------------
+    OPERADOR !
+    ---------------------------------------------------------------------------
+
+    Como undefined es falsy:
+
+        !undefined
+
+    devuelve:
+
+        true
+
+
+    Por tanto:
+
+        !buscarServicio(reserva.servicioId)
+
+    será true cuando no exista un servicio con ese identificador.
+
+
+        buscarServicio(reserva.servicioId)
+    */
+
+    if (!buscarServicio(reserva.servicioId)) {
+
+        errores.push('El servicio no existe');
+
+    }
+
+
+    /*
+    ===========================================================================
+    5. COMPROBAR QUE SE HA SELECCIONADO UN DÍA
+    ===========================================================================
+
+    Si el usuario todavía no ha seleccionado un día:
+
+        reserva.dia = ''
+
+
+    Como el string vacío es falsy:
+
+        !reserva.dia
+
+    será true.
+
+
+    En ese caso añadimos un mensaje al array de errores.
+    */
+
+    if (!reserva.dia) {
+
+        errores.push('Selecciona un día');
+
+    }
+
+
+    /*
+    ===========================================================================
+    6. DEVOLVER EL ARRAY DE ERRORES
+    ===========================================================================
+
+    return devuelve el resultado de la función.
+
+
+    EJEMPLO 1:
+
+    Si todos los datos son válidos:
+
+        return [];
+
+    El array estará vacío.
+
+
+    EJEMPLO 2:
+
+    Si faltan el nombre y el día:
+
+        return [
+            'Escribe tu nombre',
+            'Selecciona un día'
+        ];
+
+
+    Posteriormente podremos comprobar:
+
+        const errores = validarReserva(reserva);
+
+        if (errores.length > 0) {
+            // Hay errores.
+        }
+
+
+    IMPORTANTE:
+
+    validarReserva() no muestra los mensajes en el HTML.
+
+    Solamente devuelve la información para que otra
+    parte del programa decida cómo mostrarla.
+    */
+
+    return errores;
+
+}
+
+/*
+===============================================================================
+FUNCIÓN: calcularReserva()
+===============================================================================
+
+EJERCICIO PRÁCTICO: CALCULADORA DE RESERVAS
+PELADILLOS ELADIO
+===============================================================================
+
+OBJETIVO:
+
+Crear una función que calcule el precio final de una reserva.
+
+La función recibirá un objeto con los datos del formulario.
+
+
+EJEMPLO DE ENTRADA:
+
+    {
+        nombre: 'Antonio',
+        edad: 25,
+        servicioId: 'clasico',
+        dia: 'Lunes',
+        extras: ['lavado', 'cejas'],
+        coupon: 'ELADIO10',
+        esMiembro: true
+    }
+
+
+DATOS DISPONIBLES:
+
+    SERVICIOS
+
+    EXTRAS
+
+    DESCUENTO_MIEMBROS
+
+    CODIGO_CUPON
+
+    CUPON_DESCUENTO
+
+
+LA FUNCIÓN DEBE:
+
+    1. Buscar el servicio seleccionado.
+
+    2. Obtener el precio inicial del servicio.
+
+    3. Recorrer los extras seleccionados.
+
+    4. Sumar al subtotal el precio de cada extra válido.
+
+    5. Comprobar si el cliente es miembro.
+
+    6. Comprobar si ha introducido un cupón válido.
+
+    7. Calcular el descuento correspondiente.
+
+    8. Calcular el precio final.
+
+    9. Devolver los resultados agrupados en un objeto.
+
+
+IMPORTANTE:
+
+No debemos modificar el array SERVICIOS ni el objeto EXTRAS.
+
+Tampoco debemos modificar los datos originales de la reserva.
+
+La función se encargará exclusivamente de calcular
+y devolver resultados.
+===============================================================================
+*/
+
+function calcularReserva(reserva) {
+
+    /*
+    ===========================================================================
+    PASO 1. BUSCAR EL SERVICIO SELECCIONADO
+    ===========================================================================
+
+    ESTA PARTE YA ESTÁ RESUELTA.
+
+
+    En el objeto reserva tenemos:
+
+        reserva.servicioId
+
+
+    Por ejemplo:
+
+        'clasico'
+
+
+    Utilizamos nuestra función:
+
+        buscarServicio()
+
+
+    para obtener el objeto completo.
+
+
+    Si el servicio existe, podríamos obtener:
+
+        {
+            id: 'clasico',
+            name: 'Corte clásico',
+            precio: 12,
+            duracion: 25
+        }
+
+
+    Si no existe, buscarServicio() devuelve undefined.
+    */
+
+    const servicio = buscarServicio(reserva.servicioId);
+
+
+    /*
+    ===========================================================================
+    PASO 2. OBTENER EL PRECIO INICIAL
+    ===========================================================================
+
+    ESTA PARTE YA ESTÁ RESUELTA.
+
+
+    Queremos que subtotal comience con el precio
+    del servicio seleccionado.
+
+
+    ---------------------------------------------------------------------------
+    ENCADENAMIENTO OPCIONAL ?.
+    ---------------------------------------------------------------------------
+
+    El operador ?. permite acceder a una propiedad solamente
+    si el valor anterior no es null ni undefined.
+
+
+    Ejemplo:
+
+        servicio?.precio
+
+
+    Si servicio existe:
+
+        devuelve su precio.
+
+
+    Si servicio es undefined:
+
+        devuelve undefined sin producir un error.
+
+
+    ---------------------------------------------------------------------------
+    COALESCENCIA NULA ??
+    ---------------------------------------------------------------------------
+
+    Utilizamos:
+
+        ?? 0
+
+
+    para indicar que, si no encontramos un precio,
+    el subtotal debe comenzar en 0.
+
+
+    Ejemplo:
+
+        servicio?.precio ?? 0
+
+
+    Si el servicio cuesta 12:
+
+        subtotal = 12
+
+
+    Si el servicio no existe:
+
+        subtotal = 0
+
+
+    ---------------------------------------------------------------------------
+    ¿POR QUÉ UTILIZAMOS let?
+    ---------------------------------------------------------------------------
+
+    Porque más adelante tendremos que MODIFICAR el subtotal
+    para añadir los precios de los extras.
+
+    */
+
+    let subtotal = servicio?.precio ?? 0;
+
+
+    /*
+    ===========================================================================
+    PASO 3. RECORRER LOS EXTRAS SELECCIONADOS
+    ===========================================================================
+
+    AHORA COMIENZA EL EJERCICIO.
+
+
+    En el objeto reserva tenemos una propiedad:
+
+        reserva.extras
+
+
+    Su valor es un ARRAY.
+
+
+    Por ejemplo:
+
+        ['lavado', 'cejas']
+
+
+    Cada string representa la clave de un extra
+    dentro del objeto EXTRAS.
+
+
+    Recordemos nuestra estructura:
+
+        const EXTRAS = {
+
+            lavado: {
+                nombre: 'Lavado gostoso',
+                precio: 100
+            },
+
+            cejas: {
+                nombre: 'Pulido de cejas',
+                precio: 3
+            }
+
+        };
+
+
+    ---------------------------------------------------------------------------
+    ACTIVIDAD 1
+    ---------------------------------------------------------------------------
+
+    Recorre el array:
+
+        reserva.extras
+
+
+    utilizando un bucle for...of.
+
+
+    PISTA:
+
+    Recordad la estructura:
+
+        for (const elemento of array) {
+
+            // Instrucciones
+        }
+
+
+    PREGUNTAS:
+
+    - ¿Qué variable representará cada extra seleccionado?
+
+    - ¿Cuántas veces se ejecutará el bucle si el usuario
+      selecciona dos extras?
+
+    - ¿Qué ocurrirá si el array está vacío?
+
+
+    ---------------------------------------------------------------------------
+    ACTIVIDAD 2
+    ---------------------------------------------------------------------------
+
+    Dentro del bucle, busca el objeto correspondiente
+    al identificador del extra.
+
+
+    PISTA:
+
+    Para acceder a una propiedad de un objeto utilizando
+    el contenido de una variable, utilizamos corchetes.
+
+
+    Ejemplo:
+
+        const clave = 'lavado';
+
+        EXTRAS[clave]
+
+
+    Esto permite obtener:
+
+        {
+            nombre: 'Lavado gostoso',
+            precio: 100
+        }
+
+
+    PREGUNTA:
+
+    ¿Por qué no sería adecuado utilizar EXTRAS.clave?
+
+
+    ---------------------------------------------------------------------------
+    ACTIVIDAD 3
+    ---------------------------------------------------------------------------
+
+    Comprueba que el extra realmente existe.
+
+
+    PISTA:
+
+    Si intentamos acceder a una propiedad inexistente:
+
+        EXTRAS['inexistente']
+
+    obtenemos:
+
+        undefined
+
+
+    Utiliza una estructura condicional para evitar
+    sumar el precio de un extra inexistente.
+
+
+    ---------------------------------------------------------------------------
+    ACTIVIDAD 4
+    ---------------------------------------------------------------------------
+
+    Si el extra existe, suma su precio al subtotal.
+
+
+    PISTA:
+
+    Recordad el operador:
+
+        +=
+
+
+    Ejemplo:
+
+        let total = 10;
+
+        total += 5;
+
+    Resultado:
+
+        total === 15
+
+
+    PREGUNTA:
+
+    ¿Qué propiedad del objeto extra contiene el precio?
+
+
+    ---------------------------------------------------------------------------
+    COMPROBACIÓN
+    ---------------------------------------------------------------------------
+
+    Si el servicio cuesta:
+
+        12 €
+
+
+    Y el usuario selecciona:
+
+        Lavado: 100 €
+        Cejas:    3 €
+
+
+    El subtotal debería ser:
+
+        115 €
+
+
+    Si no selecciona extras:
+
+        12 €
+
+
+    ESCRIBE AQUÍ EL CÓDIGO DE LAS ACTIVIDADES 1, 2, 3 Y 4.
+    */
+
+
+
+    /*
+    ===========================================================================
+    PASO 4. CALCULAR LOS DESCUENTOS
+    ===========================================================================
+
+    En nuestra aplicación existen dos descuentos:
+
+        DESCUENTO_MIEMBROS = 0.05
+
+        CUPON_DESCUENTO = 0.10
+
+
+    También tenemos:
+
+        CODIGO_CUPON = 'ELADIO10'
+
+
+    ---------------------------------------------------------------------------
+    ACTIVIDAD 5
+    ---------------------------------------------------------------------------
+
+    Declara una variable para almacenar el porcentaje
+    total de descuento.
+
+    Al principio no debe existir ningún descuento.
+
+    PREGUNTAS:
+
+    - ¿Qué valor inicial debería tener?
+
+    - ¿Utilizarías let o const?
+
+    - ¿Por qué?
+
+
+    ---------------------------------------------------------------------------
+    ACTIVIDAD 6
+    ---------------------------------------------------------------------------
+
+    Comprueba si el cliente es miembro.
+
+
+    PISTA:
+
+    En el objeto reserva tenemos:
+
+        reserva.esMiembro
+
+
+    Esta propiedad contiene un booleano:
+
+        true
+
+    o:
+
+        false
+
+
+    Si el cliente es miembro, añade el descuento
+    indicado en:
+
+        DESCUENTO_MIEMBROS
+
+
+    PREGUNTA:
+
+    ¿Qué estructura condicional utilizarías?
+
+
+    ---------------------------------------------------------------------------
+    ACTIVIDAD 7
+    ---------------------------------------------------------------------------
+
+    Comprueba si el código de descuento introducido
+    coincide con:
+
+        CODIGO_CUPON
+
+
+    Recuerda que en leerFormulario() ya utilizamos:
+
+        trim()
+
+    y:
+
+        toUpperCase()
+
+
+    Por tanto, el código recibido ya está normalizado.
+
+
+    PISTA:
+
+    Utiliza el operador de igualdad estricta:
+
+        ===
+
+
+    Si el cupón es correcto, añade:
+
+        CUPON_DESCUENTO
+
+
+    ---------------------------------------------------------------------------
+    IMPORTANTE: CRITERIO DE ESTE EJERCICIO
+    ---------------------------------------------------------------------------
+
+    Vamos a considerar que los descuentos se SUMAN.
+
+    Es decir:
+
+        Miembro: 5 %
+
+        Cupón:  10 %
+
+        Total:  15 %
+
+
+    No vamos a aplicar un descuento y después otro
+    sobre el resultado reducido.
+
+    Son dos formas diferentes de calcular descuentos.
+
+    En este ejercicio utilizaremos la primera.
+
+
+    ESCRIBE AQUÍ EL CÓDIGO DE LAS ACTIVIDADES 5, 6 Y 7.
+    */
+
+
+
+    /*
+    ===========================================================================
+    PASO 5. CALCULAR EL IMPORTE DEL DESCUENTO
+    ===========================================================================
+
+    ---------------------------------------------------------------------------
+    ACTIVIDAD 8
+    ---------------------------------------------------------------------------
+
+    Una vez calculado el porcentaje total de descuento,
+    necesitamos saber cuánto dinero representa.
+
+
+    EJEMPLO:
+
+        subtotal = 100
+
+        porcentajeDescuento = 0.15
+
+
+    El descuento sería:
+
+        15 €
+
+
+    PISTA:
+
+    Para calcular un porcentaje de una cantidad,
+    multiplicamos la cantidad por el porcentaje.
+
+
+    PREGUNTA:
+
+    ¿Qué operación matemática necesitamos realizar?
+
+
+    Crea una constante para almacenar el importe del descuento.
+
+
+    ESCRIBE AQUÍ TU CÓDIGO.
+    */
+
+
+
+    /*
+    ===========================================================================
+    PASO 6. CALCULAR EL PRECIO FINAL
+    ===========================================================================
+
+    ---------------------------------------------------------------------------
+    ACTIVIDAD 9
+    ---------------------------------------------------------------------------
+
+    Ahora tenemos que obtener el total que debe pagar el cliente.
+
+
+    EJEMPLO:
+
+        subtotal = 100 €
+
+        descuento = 15 €
+
+
+    El cliente debe pagar:
+
+        85 €
+
+
+    PREGUNTA:
+
+    ¿Qué operación debemos realizar?
+
+
+    Crea una constante llamada total
+    y guarda en ella el resultado.
+
+
+    ESCRIBE AQUÍ TU CÓDIGO.
+    */
+
+
+
+    /*
+    ===========================================================================
+    PASO 7. DEVOLVER LOS RESULTADOS
+    ===========================================================================
+
+    ---------------------------------------------------------------------------
+    ACTIVIDAD 10
+    ---------------------------------------------------------------------------
+
+    La función debe devolver un objeto con los resultados.
+
+
+    Como mínimo, queremos devolver:
+
+        subtotal
+        descuento
+        total
+
+
+    También sería útil devolver el servicio seleccionado
+    para poder mostrar su nombre en el resumen.
+
+
+    PREGUNTAS:
+
+    - ¿Qué palabra reservada permite devolver un valor
+      desde una función?
+
+    - ¿Cómo se crea un objeto literal?
+
+    - ¿Cómo podemos utilizar la sintaxis abreviada
+      de propiedades?
+
+
+    OBJETIVO:
+
+    Poder escribir posteriormente:
+
+        const resultado = calcularReserva(reserva);
+
+
+    Y acceder a:
+
+        resultado.subtotal
+
+        resultado.descuento
+
+        resultado.total
+
+
+    ESCRIBE AQUÍ EL RETURN.
+    */
+
+
 
 }
