@@ -692,11 +692,13 @@ function renderizarServicios() {
             </option>
         `;
 
-        servicesGrid.innerHTML = cardsHtml;
-        serviceSelect.innerHTML = optionHtml;
+        
 
 
     }
+
+        servicesGrid.innerHTML = cardsHtml;
+        serviceSelect.innerHTML = optionHtml;
 
 }
 
