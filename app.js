@@ -610,7 +610,12 @@ function renderizarServicios() {
      */
 
     let cardsHtml = '';
-    let optionHtml = '';
+    let optionHtml = `
+     <option value="" selected disabled>
+        - Selecciona el servicio -
+     </option>
+    
+    `;
 
 
     /*
@@ -673,7 +678,7 @@ function renderizarServicios() {
         
 
         cardsHtml += `
-          <article class="article">
+          <article class="card">
 
               <h3>${servicio.name}</h3>
 
@@ -3403,463 +3408,84 @@ function calcularReserva(reserva) {
 
     let subtotal = servicio?.precio ?? 0;
 
+    const extrasDetalle = [];
 
-    /*
-    ===========================================================================
-    PASO 3. RECORRER LOS EXTRAS SELECCIONADOS
-    ===========================================================================
+    for (const extra of reserva.extras) {
 
-    AHORA COMIENZA EL EJERCICIO.
+        const extra = EXTRAS[extra];
 
+        if (!extra) {
+            continue;
+        }
 
-    En el objeto reserva tenemos una propiedad:
+        subtotal +=  extra.precio;
 
-        reserva.extras
+        extrasDetalle.push(extra);
 
+        let porcentajeDescuento = 0;
 
-    Su valor es un ARRAY.
+        if(reserva.esMiembro) {
+            porcentajeDescuento += DESCUENTO_MIEMBROS;
+        }
 
+        if (reserva.coupon === CODIGO_CUPON){
+            porcentajeDescuento += CUPON_DESCUENTO;
+        }
 
-    Por ejemplo:
+        const descuento = subtotal * porcentajeDescuento;
 
-        ['lavado', 'cejas']
+        const total = subtotal - descuento;
 
-
-    Cada string representa la clave de un extra
-    dentro del objeto EXTRAS.
-
-
-    Recordemos nuestra estructura:
-
-        const EXTRAS = {
-
-            lavado: {
-                nombre: 'Lavado gostoso',
-                precio: 100
-            },
-
-            cejas: {
-                nombre: 'Pulido de cejas',
-                precio: 3
-            }
-
+        return {
+            servicio,
+            extrasDetalle,
+            subtotal,
+            porcentajeDescuento,
+            descuento,
+            total
         };
 
-
-    ---------------------------------------------------------------------------
-    ACTIVIDAD 1
-    ---------------------------------------------------------------------------
-
-    Recorre el array:
-
-        reserva.extras
-
-
-    utilizando un bucle for...of.
-
-
-    PISTA:
-
-    Recordad la estructura:
-
-        for (const elemento of array) {
-
-            // Instrucciones
-        }
-
-
-    PREGUNTAS:
-
-    - ¿Qué variable representará cada extra seleccionado?
-
-    - ¿Cuántas veces se ejecutará el bucle si el usuario
-      selecciona dos extras?
-
-    - ¿Qué ocurrirá si el array está vacío?
-
-
-    ---------------------------------------------------------------------------
-    ACTIVIDAD 2
-    ---------------------------------------------------------------------------
-
-    Dentro del bucle, busca el objeto correspondiente
-    al identificador del extra.
-
-
-    PISTA:
-
-    Para acceder a una propiedad de un objeto utilizando
-    el contenido de una variable, utilizamos corchetes.
-
-
-    Ejemplo:
-
-        const clave = 'lavado';
-
-        EXTRAS[clave]
-
-
-    Esto permite obtener:
-
-        {
-            nombre: 'Lavado gostoso',
-            precio: 100
-        }
-
-
-    PREGUNTA:
-
-    ¿Por qué no sería adecuado utilizar EXTRAS.clave?
-
-
-    ---------------------------------------------------------------------------
-    ACTIVIDAD 3
-    ---------------------------------------------------------------------------
-
-    Comprueba que el extra realmente existe.
-
-
-    PISTA:
-
-    Si intentamos acceder a una propiedad inexistente:
-
-        EXTRAS['inexistente']
-
-    obtenemos:
-
-        undefined
-
-
-    Utiliza una estructura condicional para evitar
-    sumar el precio de un extra inexistente.
-
-
-    ---------------------------------------------------------------------------
-    ACTIVIDAD 4
-    ---------------------------------------------------------------------------
-
-    Si el extra existe, suma su precio al subtotal.
-
-
-    PISTA:
-
-    Recordad el operador:
-
-        +=
-
-
-    Ejemplo:
-
-        let total = 10;
-
-        total += 5;
-
-    Resultado:
-
-        total === 15
-
-
-    PREGUNTA:
-
-    ¿Qué propiedad del objeto extra contiene el precio?
-
-
-    ---------------------------------------------------------------------------
-    COMPROBACIÓN
-    ---------------------------------------------------------------------------
-
-    Si el servicio cuesta:
-
-        12 €
-
-
-    Y el usuario selecciona:
-
-        Lavado: 100 €
-        Cejas:    3 €
-
-
-    El subtotal debería ser:
-
-        115 €
-
-
-    Si no selecciona extras:
-
-        12 €
-
-
-    ESCRIBE AQUÍ EL CÓDIGO DE LAS ACTIVIDADES 1, 2, 3 Y 4.
-    */
-
-
-
-    /*
-    ===========================================================================
-    PASO 4. CALCULAR LOS DESCUENTOS
-    ===========================================================================
-
-    En nuestra aplicación existen dos descuentos:
-
-        DESCUENTO_MIEMBROS = 0.05
-
-        CUPON_DESCUENTO = 0.10
-
-
-    También tenemos:
-
-        CODIGO_CUPON = 'ELADIO10'
-
-
-    ---------------------------------------------------------------------------
-    ACTIVIDAD 5
-    ---------------------------------------------------------------------------
-
-    Declara una variable para almacenar el porcentaje
-    total de descuento.
-
-    Al principio no debe existir ningún descuento.
-
-    PREGUNTAS:
-
-    - ¿Qué valor inicial debería tener?
-
-    - ¿Utilizarías let o const?
-
-    - ¿Por qué?
-
-
-    ---------------------------------------------------------------------------
-    ACTIVIDAD 6
-    ---------------------------------------------------------------------------
-
-    Comprueba si el cliente es miembro.
-
-
-    PISTA:
-
-    En el objeto reserva tenemos:
-
-        reserva.esMiembro
-
-
-    Esta propiedad contiene un booleano:
-
-        true
-
-    o:
-
-        false
-
-
-    Si el cliente es miembro, añade el descuento
-    indicado en:
-
-        DESCUENTO_MIEMBROS
-
-
-    PREGUNTA:
-
-    ¿Qué estructura condicional utilizarías?
-
-
-    ---------------------------------------------------------------------------
-    ACTIVIDAD 7
-    ---------------------------------------------------------------------------
-
-    Comprueba si el código de descuento introducido
-    coincide con:
-
-        CODIGO_CUPON
-
-
-    Recuerda que en leerFormulario() ya utilizamos:
-
-        trim()
-
-    y:
-
-        toUpperCase()
-
-
-    Por tanto, el código recibido ya está normalizado.
-
-
-    PISTA:
-
-    Utiliza el operador de igualdad estricta:
-
-        ===
-
-
-    Si el cupón es correcto, añade:
-
-        CUPON_DESCUENTO
-
-
-    ---------------------------------------------------------------------------
-    IMPORTANTE: CRITERIO DE ESTE EJERCICIO
-    ---------------------------------------------------------------------------
-
-    Vamos a considerar que los descuentos se SUMAN.
-
-    Es decir:
-
-        Miembro: 5 %
-
-        Cupón:  10 %
-
-        Total:  15 %
-
-
-    No vamos a aplicar un descuento y después otro
-    sobre el resultado reducido.
-
-    Son dos formas diferentes de calcular descuentos.
-
-    En este ejercicio utilizaremos la primera.
-
-
-    ESCRIBE AQUÍ EL CÓDIGO DE LAS ACTIVIDADES 5, 6 Y 7.
-    */
-
-
-
-    /*
-    ===========================================================================
-    PASO 5. CALCULAR EL IMPORTE DEL DESCUENTO
-    ===========================================================================
-
-    ---------------------------------------------------------------------------
-    ACTIVIDAD 8
-    ---------------------------------------------------------------------------
-
-    Una vez calculado el porcentaje total de descuento,
-    necesitamos saber cuánto dinero representa.
-
-
-    EJEMPLO:
-
-        subtotal = 100
-
-        porcentajeDescuento = 0.15
-
-
-    El descuento sería:
-
-        15 €
-
-
-    PISTA:
-
-    Para calcular un porcentaje de una cantidad,
-    multiplicamos la cantidad por el porcentaje.
-
-
-    PREGUNTA:
-
-    ¿Qué operación matemática necesitamos realizar?
-
-
-    Crea una constante para almacenar el importe del descuento.
-
-
-    ESCRIBE AQUÍ TU CÓDIGO.
-    */
-
-
-
-    /*
-    ===========================================================================
-    PASO 6. CALCULAR EL PRECIO FINAL
-    ===========================================================================
-
-    ---------------------------------------------------------------------------
-    ACTIVIDAD 9
-    ---------------------------------------------------------------------------
-
-    Ahora tenemos que obtener el total que debe pagar el cliente.
-
-
-    EJEMPLO:
-
-        subtotal = 100 €
-
-        descuento = 15 €
-
-
-    El cliente debe pagar:
-
-        85 €
-
-
-    PREGUNTA:
-
-    ¿Qué operación debemos realizar?
-
-
-    Crea una constante llamada total
-    y guarda en ella el resultado.
-
-
-    ESCRIBE AQUÍ TU CÓDIGO.
-    */
-
-
-
-    /*
-    ===========================================================================
-    PASO 7. DEVOLVER LOS RESULTADOS
-    ===========================================================================
-
-    ---------------------------------------------------------------------------
-    ACTIVIDAD 10
-    ---------------------------------------------------------------------------
-
-    La función debe devolver un objeto con los resultados.
-
-
-    Como mínimo, queremos devolver:
-
-        subtotal
-        descuento
-        total
-
-
-    También sería útil devolver el servicio seleccionado
-    para poder mostrar su nombre en el resumen.
-
-
-    PREGUNTAS:
-
-    - ¿Qué palabra reservada permite devolver un valor
-      desde una función?
-
-    - ¿Cómo se crea un objeto literal?
-
-    - ¿Cómo podemos utilizar la sintaxis abreviada
-      de propiedades?
-
-
-    OBJETIVO:
-
-    Poder escribir posteriormente:
-
-        const resultado = calcularReserva(reserva);
-
-
-    Y acceder a:
-
-        resultado.subtotal
-
-        resultado.descuento
-
-        resultado.total
-
-
-    ESCRIBE AQUÍ EL RETURN.
-    */
-
+    }
+
+}
+
+function obtenerMensajeEdad(edad){
+    if (edad < TIENDA.edadMinima){
+        return 'No cumples con la edad mínima'
+    } else if (edad >= 65) {
+        return ' bienvenido jubilado!'
+    } else {
+        return 'Contamos contigo!'
+    }
+}
+
+function obtenerMensajeDia(dia){
+
+    switch (dia) {
+
+        case 'Lunes':
+            return 'Empezar a tope la semana!'
+        case 'Viernes':
+            return 'Acabar a tope la semana!'
+        case 'Sábado':
+            return 'Bendito sábado!'      
+        default:     
+            return 'Un buen día para retocarse!' 
+    }
 
 
 }
+
+function renderizarTicket(){
+    const reserva = leerFormulario();
+
+    const resultado = calcularReserva(reserva);
+
+    const nombreServicio = resultado.servicio?.name ?? 'Sin seleccionar';
+
+    const nombreExtras = resultado.extrasDetalle
+            .map(extra => extra.nombre)
+            .join(', ');
+
+}
+renderizarServicios();
