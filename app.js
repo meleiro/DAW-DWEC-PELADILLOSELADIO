@@ -3421,6 +3421,7 @@ function calcularReserva(reserva) {
         subtotal +=  extra.precio;
 
         extrasDetalle.push(extra);
+    }
 
         let porcentajeDescuento = 0;
 
@@ -3445,7 +3446,7 @@ function calcularReserva(reserva) {
             total
         };
 
-    }
+    
 
 }
 
@@ -3489,7 +3490,85 @@ function renderizarTicket() {
         .map(extra => extra.nombre)
         .join(', ');
 
+    ticketContent.innerHTML = `
+    
+            <div class="ticket-row">
+                <span>Cliente</span>
+                <strong>${escapeHtml(reserva.nombre || 'Sin indicar')} </strong>
+            </div>
+
+            <div class="ticket-row">
+                <span>Servicio</span>
+                <strong>${escapeHtml(nombreServicio)}</strong>
+            </div>
+
+            <div class="ticket-row">
+                <span>Día</span>
+                <strong>${escapeHtml(reserva.dia|| 'Sin seleccionar')} </strong>
+            </div>
+
+            <div class="ticket-row">
+                <span>Extras</span>
+                <strong>${escapeHtml(nombresExtras || 'Ninguno')} </strong>
+            </div>
+
+            <div class="ticket-row">
+                <span>Miembro</span>
+                <strong>${reserva.esMiembro ? 'Sí' : 'No'} </strong>
+            </div>
+
+            <div class="ticket-row">
+                <span>Subtotal</span>
+                <strong>${formatMoney(resultado.subtotal)} </strong>
+            </div>
+
+            <div class="ticket-row">
+                <span>Descuento</span>
+                <strong>${formatMoney(resultado.descuento)} </strong>
+            </div>
+
+             <div class="ticket-row">
+                <span>Total</span>
+                <strong>${formatMoney(resultado.total)} </strong>
+            </div>  
+    
+    `;  
+
+
+}
+
+bookingForm.addEventListener( 'submit'  , function(event) {
+
+    event.preventDefault();
+
+    const reserva = leerFormulario();
+
+    const errores = validarReserva(reserva);
+
+    if (errores.length > 0) {
+
+        formMessage.textContent = errores.join(' ');
+
+        return;
+    }
+
+    const resultado = calcularReserva(reserva);
+
+    formMessage.textContent=
+     `Reserva preparada para ${reserva.nombre}. ` +
+     `Total: ${formatMoney(resultado.total)}. `;
+
+     renderizarTicket();
+
+
 }
 
 
+
+
+
+
+  );
+
 renderizarServicios();
+
