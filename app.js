@@ -3410,9 +3410,9 @@ function calcularReserva(reserva) {
 
     const extrasDetalle = [];
 
-    for (const extra of reserva.extras) {
+    for (const extraID of reserva.extras) {
 
-        const extra = EXTRAS[extra];
+        const extra = EXTRAS[extraID];
 
         if (!extra) {
             continue;
@@ -3476,16 +3476,20 @@ function obtenerMensajeDia(dia){
 
 }
 
-function renderizarTicket(){
+function renderizarTicket() {
+
     const reserva = leerFormulario();
 
     const resultado = calcularReserva(reserva);
 
-    const nombreServicio = resultado.servicio?.name ?? 'Sin seleccionar';
+    const nombreServicio =
+        resultado.servicio?.name ?? 'Sin seleccionar';
 
-    const nombreExtras = resultado.extrasDetalle
-            .map(extra => extra.nombre)
-            .join(', ');
+    const nombresExtras = resultado.extrasDetalle
+        .map(extra => extra.nombre)
+        .join(', ');
 
 }
+
+
 renderizarServicios();
